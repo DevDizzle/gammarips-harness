@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "gammarips": {
+      "type": "http",
+      "url": "https://mcp.gammarips.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GAMMARIPS_MCP_KEY}"
+      }
+    }
+  }
+}
