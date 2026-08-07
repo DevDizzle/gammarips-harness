@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: falsified-on-cohort
 Exit-context: 3-day hold era labels (option PnL)
-Source: GammaRips flow-conviction (V/OI) study, H16 (2026-06-02)
+Source: the GammaRips engine briefs H16 (2026-06-02)
 Date: 2026-07-06
 
 # Volume/OI ratio filters — falsified

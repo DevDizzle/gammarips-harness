@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: falsified-on-cohort
 Exit-context: tested on the labeled pool, 2026-06-19 study
-Source: GammaRips recent-option-winner persistence study (2026-06-19)
+Source: GammaRips research (recent-option-WINNER persistence, 2026-06-19)
 Date: 2026-07-06
 
 # "Ride recent winners" — falsified

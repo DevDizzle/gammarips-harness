@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: policy-adopted
 Exit-context: applied at decision time regardless of exit
-Source: GammaRips regime rail; VIX term-structure literature (anchored, not cohort-tested)
+Source: the GammaRips engine signal-notifier rail; VIX term-structure literature (anchored, not cohort-tested)
 Date: 2026-07-06
 
 # Regime rail: VIX > VIX3M means stand down

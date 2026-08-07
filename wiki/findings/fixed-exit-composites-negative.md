@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: proven-on-cohort
 Exit-context: fixed same-day GIGO bracket (10:00 entry, +40/−30, flat 15:45) applied uniformly to the whole pool
-Source: GammaRips pool-composite studies 2026-06/07 (3,094-contract / 54-day seed)
+Source: the GammaRips engine pool composite studies 2026-06/07; pool_outcomes seed (3,094 contracts / 54 days)
 Date: 2026-07-06
 
 # Fixed-exit pool composites are negative; the exit is the free variable
@@ -18,6 +18,5 @@ hard-coded exit was the problem.** Profitability lives in HOW a surfaced contrac
 traded — selection of WHICH candidates, and a deliberately designed exit.
 
 Application: never trade the pool blind; never adopt a bracket by default. `/exit-plan`
-designs the exit per-trade from `query_outcomes(view="surface")` +
-`query_outcomes(view="exit_rule")`. This is also why no whole-pool composite may ever be
-cited as a strategy return.
+designs the exit per-trade from `get_opportunity_surface` + `estimate_exit_rule`. This is
+also why no whole-pool composite may ever be cited as a strategy return.

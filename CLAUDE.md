@@ -3,9 +3,11 @@
 ## Mission
 An open-source trading harness you clone and run against the **GammaRips MCP** data layer.
 An agent reasons over the MCP's primitives to surface **one trade candidate per day (or
-none)**, designs its own exit, and journals every decision point-in-time. The harness is
-free; the data (an MCP API key) is paid. This is a *workflow*, not a signal service — you
-supply the judgment, the MCP supplies the curated pool and the outcome history.
+none)**, designs its own exit, pre-registers every decision as data, and scores the whole
+pool after the close — so the harness can prove, with its own numbers, whether its screen
+beats the pool it draws from. The harness is free; the data (an MCP API key) is paid.
+This is a *workflow*, not a signal service — you supply the judgment, the MCP supplies
+the curated pool and the outcome history.
 
 Everything a decision needs comes through the gammarips MCP. Subscribers should be able to
 hook into that one MCP and get everything they need — this harness proves that daily.
@@ -13,43 +15,50 @@ hook into that one MCP and get everything they need — this harness proves that
 ## Non-negotiables
 1. **MCP-only at decision time.** All market/engine data used in a trade decision comes
    through the gammarips MCP (`.mcp.json`). No direct database reads, no other data
-   vendors, no other MCPs. If the MCP can't answer a question, note it, decide without it
-   (or no-trade), and move on — do NOT work around it. (Exception: `wiki/` distillation may
-   read external research and literature — that is knowledge curation, not decision-time
-   data.)
-2. **Paper only.** No live capital, no broker connections by default. The real-money
-   trigger conditions live in `docs/TRADING-DOCTRINE.md` and are your call, never the
-   agent's.
+   vendors. If the MCP can't answer a question, note it, decide without it (or no-trade),
+   and move on — do NOT work around it. (Exceptions: `wiki/` distillation may read
+   external research — knowledge curation is not decision-time data; and if you connect
+   your own broker for real fills and quotes, its records are YOUR ground truth for
+   fills and the book, never a pool or signal source.)
+2. **Paper only by default.** No live capital until you deliberately flip that switch —
+   the real-money trigger conditions live in `docs/TRADING-DOCTRINE.md` and are your
+   call, never the agent's.
 3. **No pick endpoint — reason to your own contract.** The GammaRips MCP deliberately
    exposes **no** pick-returning endpoint; there is nothing to copy. Two agents reasoning
-   over the same pool at different times, with different objectives and risk, should reach
-   different contracts. The value is *your* analysis over the shared data.
-4. **Journal before outcome.** Every decision — including no-trade — is journaled
-   point-in-time with the planned exit, BEFORE any outcome is known. Pre-commit sections
-   are never edited after commit. `scripts/lint.py` enforces shape.
+   over the same pool at different times, with different objectives and risk, should
+   reach different contracts. The value is *your* analysis over the shared data.
+4. **Pre-register before outcome.** Every decision day writes one funnel row per pool
+   name — stage reached, exclusion reason, point-in-time features — BEFORE any outcome
+   is known, and `/review` scores every row after the close, including everything the
+   screen dropped. Scoring only your own picks cannot tell you whether the screen works.
+   `scripts/funnel_log.py` enforces shape.
 5. **Claim honesty.** Every thesis cites wiki notes by name WITH their maturity tag and
-   exit-context. A fragile-conditional lever is not a proven one; citing an edge without
-   its hold/exit context is a critic FAIL.
+   exit-context. A fragile-conditional lever is not a proven one; a number is never
+   presented without what it is measured against; a finding is never presented without
+   its N.
 
 ## Read-first order
 1. `docs/TRADING-DOCTRINE.md` — the rules (exclusions, sizing, exit discipline)
-2. `wiki/_index/FINDINGS.md` — what we know, with claim tags
-3. `journal/` — the two most recent entries (where we are)
+2. `wiki/_index/FINDINGS.md` — what is known, with claim tags
+3. `eval/README.md` — the dataset and its schemas
 
-## Daily loop
-`/morning-pool` → `/select-contract` → `/exit-plan` → `/trade-journal` (commit) →
-[T+1 or at exit] `/trade-journal` (close). The **trade-critic** subagent MUST pass before
-any journal entry is marked `committed`.
+## The loop
+`/trade` in the morning (consult → the operator decides) → `/review` after the close
+(score every pool name, backfill T+3) → `scripts/edge.py` and `scripts/skill_eval.py`
+accumulate the evidence. `/coach` on demand — and unprompted whenever an impulse
+signature shows up (an order idea minutes after a loss, hold-and-hope phrasing,
+sizing above your own written cap). The coach referees behavior against YOUR rules
+with receipts from `eval/behavior-ledger.jsonl`; it never says buy or sell.
 
 ## Layout
 | Path | What |
 |---|---|
 | `docs/` | doctrine, operations |
 | `wiki/` | llm-wiki knowledge layer (`findings/`, `literature/` + `_index/` registries) |
-| `journal/` | one note per decision day — the harness's own labeled dataset |
-| `.claude/skills/` | procedures: morning-pool, select-contract, exit-plan, trade-journal, wiki-distill |
-| `.claude/agents/` | trade-critic (adversarial pre-commit), wiki-librarian (wiki health) |
-| `scripts/lint.py` | deterministic journal + wiki validator — run after any journal/wiki change |
+| `eval/` | YOUR dataset: funnel-log, trades, behavior ledger, findings (see `eval/README.md`) |
+| `.claude/skills/` | procedures: trade, review, coach, wiki-distill |
+| `.claude/agents/` | wiki-librarian (wiki health) |
+| `scripts/` | funnel_log, behavior_log (validators); edge, skill_eval (evidence); lint (wiki) |
 
 ## MCP
 Server: **gammarips** (Streamable HTTP, `.mcp.json`; auth via `GAMMARIPS_MCP_KEY`, see

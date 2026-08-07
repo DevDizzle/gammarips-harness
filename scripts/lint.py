@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Deterministic health check for the gammarips-trader harness.
+"""Deterministic health check for the gammarips-harness.
 
-Checks wiki note headers/tags/registry/links and journal entry shape.
-Run after any journal or wiki change: python scripts/lint.py
+Checks wiki note headers/tags/registry/links (journal checks retained for forks that
+still keep one). Run after any wiki change: python scripts/lint.py
 Exit code 0 = clean, 1 = problems found.
 """
 import re

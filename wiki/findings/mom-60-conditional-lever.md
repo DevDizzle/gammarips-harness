@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: fragile-conditional
 Exit-context: ONLY 3-day hold × |delta| 0.20–0.46. ZERO edge under same-day GIGO.
-Source: GammaRips edge-discovery study, 2026-07-01
+Source: the GammaRips engine edge discovery 2026-07-01; memory project_momentum_60d_lever
 Date: 2026-07-06
 
 # 60-day momentum lever — real but fragile, exit-conditional
