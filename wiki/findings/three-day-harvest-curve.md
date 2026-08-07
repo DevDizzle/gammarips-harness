@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: proven-on-cohort
 Exit-context: 3-trading-day window from the 10:00 day-1 entry, real option minute bars, touch-based ceiling (limit-touch ≠ fill)
-Source: GammaRips harvest-curve retro, N=2,029 (2026-07-06 retro #3)
+Source: 2026-07-06 harvest-curve retro (#3), N=2,029; research ledger2026-07-06 retro #3
 Date: 2026-07-06
 
 # The 3-day harvest curve — real, late, and not rule-able
@@ -23,7 +23,7 @@ target" intuition:
 every target ≥ +20 (+11% at +75/80), hold-to-window-end +10.3%, WR 54%. CIs vs pool span
 zero and V7.1-era N=2, so this is a lead to accrue toward N≥30, never load-bearing yet.
 The mom_60 tilt's harvest lift failed walk-forward (regime) — consistent with
-[[mom-60-conditional-lever]]. Canonical exit-is-the-problem exhibit: a name that peaked
+[[mom-60-conditional-lever]]. Canonical exit-is-the-problem exhibit: FCEL 06-24 peaked
 +1,234% on day 3 while the live same-day exit realized −47.8% on the same path
 ([[fixed-exit-composites-negative]]).
 

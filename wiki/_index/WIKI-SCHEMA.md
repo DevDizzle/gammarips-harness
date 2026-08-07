@@ -4,9 +4,9 @@ The `wiki/` is this harness's compiled-knowledge layer (LLM-wiki pattern: source
 LLM-written notes → registry). One claim per note. Edit-over-duplicate.
 
 ## Note types
-- `finding` (`wiki/findings/`) — a claim tested on the GammaRips cohorts/ledgers.
+- `finding` (`wiki/findings/`) — a claim tested on our own cohorts/ledgers.
 - `literature` (`wiki/literature/`) — a claim from external research/practice, not tested
-  on that data.
+  on our data.
 - `concept` (`wiki/concepts/`) — definitional/background (greeks, IV mechanics, etc.).
 
 ## Required header block (every note)
@@ -17,7 +17,7 @@ Tag: proven-on-cohort | falsified-on-cohort | fragile-conditional |
      literature-established | untested-hypothesis | policy-adopted
 Exit-context: <the hold period + exit rule the evidence assumes; "n/a" only for
                methodology/concept notes>
-Source: <study / paper / journal entry — no private paths>
+Source: <engine doc / study / paper / journal entry>
 Date: YYYY-MM-DD
 ```
 
@@ -27,14 +27,14 @@ cited without its exit context is meaningless; the trade-critic fails any thesis
 cites a note whose exit-context doesn't match the planned hold.
 
 ## Tag semantics
-- `proven-on-cohort` — held up on the labeled data with real N; still era-bound (note the
+- `proven-on-cohort` — held up on our labeled data with real N; still era-bound (note the
   cohort + exit).
-- `falsified-on-cohort` — tested on the data and rejected; anti-edge. Falsified notes are
+- `falsified-on-cohort` — tested on our data and rejected; anti-edge. Falsified notes are
   as valuable as proven ones — keep them active.
 - `fragile-conditional` — survived testing only under specific conditions; proposer-only;
   never load-bearing alone.
-- `literature-established` — settled in published research; deliberately not re-tested on
-  small N.
+- `literature-established` — settled in published research; we deliberately did not
+  re-test it on our small N.
 - `untested-hypothesis` — plausible, not yet tested; never cite as support for a trade.
 - `policy-adopted` — an operating rule we run (often literature-anchored), distinct from a
   measured edge.
@@ -46,9 +46,8 @@ cites a note whose exit-context doesn't match the planned hold.
 - Every note registered in `_index/FINDINGS.md` (one line + tag). `scripts/lint.py`
   enforces headers, tags, registry completeness, and link resolution.
 
-## Sourcing rule
-Distill from your own journal lessons, the GammaRips MCP's own methodology playbooks
-(`get_playbook`), and external literature (verify the citation before asserting it). Keep
-a `Source:` line on every note, but never point it at a private path or paste in anything
-that would leak someone's private pick or same-day engine state — the wiki is knowledge,
-not a data side-channel.
+## Firewall
+Distillation may read external research docs (research ledger,
+briefs, docs/DECISIONS) and external literature. It may NOT copy in anything
+that would leak the any external pick or same-day engine state — the
+wiki is knowledge, not a data side-channel.

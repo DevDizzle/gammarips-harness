@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: proven-on-cohort
 Exit-context: intrinsic-bound path, 10:00 entry through expiration (N=1,303 expired calls); option-price path timing still unmeasured (needs the follow collector)
-Source: GammaRips excursion-vs-IV retro (2026-07-06 retro #2)
+Source: 2026-07-06 excursion-vs-IV retro (#2); research ledger2026-07-06 retro #2
 Date: 2026-07-06
 
 # The pool is path-calibrated to its own IV — the giveback is the edge surface
@@ -21,7 +21,7 @@ contract retains only **31% of its peak** at expiry and 37.8% round-trip to a lo
 of ever-profitable contracts die at a loss.
 
 Application: (1) treat entry IV as the honest excursion base rate — never claim or assume
-the pool "moves more than priced"; (2) the enter-day-1/exit-at-the-peak intent is
+the pool "moves more than priced"; (2) you's enter-day-1/exit-at-the-peak intent is
 NOT supported by early peaks on underlying paths — peaks cluster LATE, so near-term exits
 catch ~1 in 5 peaks; patience through most of the life, then harvesting before expiry
 bleed, fits the measured shape better; (3) the thing a disciplined exit harvests is the

@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: proven-on-cohort
 Exit-context: n/a (methodology)
-Source: GammaRips underlying-vs-option-PnL study
+Source: the GammaRips engine UNDERLYING_VS_OPTIONS_V1; memory reference_option_pnl_research_label
 Date: 2026-07-06
 
 # Evaluate on option PnL, never underlying direction
@@ -12,7 +12,6 @@ spread eat a directional win. Any rule, edge, or track-record claim evaluated on
 underlying direction overstates reality.
 
 Application: every journal outcome and every wiki finding is stated in option PnL. MCP
-caveat: `query_outcomes(view="signal_performance")` / `query_outcomes(view="win_rate")`
-report **underlying-direction** outcomes (they carry a universe marker) — never quote them
-as option performance. Option PnL lives in `query_outcomes(view="labels")` /
-`query_outcomes(view="summary")` / `query_outcomes(view="surface")`.
+caveat: `get_signal_performance` / `get_win_rate_summary` report **underlying-direction**
+outcomes (they carry a universe marker) — never quote them as option performance. Option
+PnL lives in `query_outcomes` / `get_outcome_summary` / `get_opportunity_surface`.

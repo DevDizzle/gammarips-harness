@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: proven-on-cohort
 Exit-context: 3-day hold, −60%/+80% bracket era labels (option PnL)
-Source: GammaRips internal cohort study (direction / flow-intent)
+Source: GammaRips research (direction/flow_intent study); briefs 2026-06-05
 Date: 2026-07-06
 
 # Bullish direction asymmetry

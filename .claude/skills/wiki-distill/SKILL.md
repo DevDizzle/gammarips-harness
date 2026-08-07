@@ -1,6 +1,6 @@
 ---
 name: wiki-distill
-description: Ingest a finding into the wiki as a claim-tagged note — from journal lessons, MCP methodology playbooks, or external literature. Use when a lesson recurs or a best practice needs encoding.
+description: Ingest a finding into the wiki as a claim-tagged note — from journal lessons, the GammaRips engine research docs, or external literature. Use when a lesson recurs, engine research lands, or a best practice needs encoding.
 ---
 
 # wiki-distill
@@ -24,8 +24,7 @@ Read `wiki/_index/WIKI-SCHEMA.md` first. One claim per note; edit-over-duplicate
 6. `python scripts/lint.py`.
 
 ## Allowed sources
-Journal lessons; the GammaRips MCP's own methodology playbooks (`get_playbook` —
-`start-here`, `daily-workflow`, `exit-lab`, `leakage-and-data-contract`, the field
-dictionary and data-contract schema); external literature (verify the citation before
-asserting it). Keep the `Source:` line free of private paths, and NEVER distill anything
-that would encode someone's private pick or same-day engine state.
+Journal lessons; external research docs (research ledger, briefs,
+docs/DECISIONS — knowledge curation is the one firewall exception); external literature
+(verify the citation before asserting it). NEVER distill anything that encodes the
+any external pick or same-day engine state.

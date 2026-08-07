@@ -2,7 +2,7 @@ Status: active
 Type: finding
 Tag: proven-on-cohort
 Exit-context: hold-to-expiration, zero discretion (enter 10:00 entry-day, collect intrinsic at expiry)
-Source: GammaRips ITM-vs-delta retro, N=2,146 expired (2026-07-06; pre-committed H1 rejected)
+Source: 2026-07-06 ITM-vs-delta retro (N=2,146 expired; research ledger2026-07-06; pre-committed H1 rejected)
 Date: 2026-07-06
 
 # The pool is delta-calibrated — no directional edge at expiration
