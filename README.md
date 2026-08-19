@@ -72,7 +72,7 @@ and both are pro. The harness is free; the data is what costs money.
 | `CLAUDE.md` | agent entry point: mission, non-negotiables, the loop |
 | `docs/TRADING-DOCTRINE.md` | the rules: hard exclusions, tradeability, sizing (set your own), exit discipline |
 | `docs/OPERATIONS.md` | MCP connection, timing, session procedure |
-| `.claude/skills/` | the procedures: trade, review, coach, wiki-distill |
+| `.claude/skills/` | the procedures: trade, review, coach, wiki-distill, ste100 (writing style) |
 | `.claude/agents/` | wiki-librarian (wiki health) |
 | `wiki/` | claim-tagged knowledge notes (`findings/`, `literature/`) + registries in `_index/` |
 | `eval/` | YOUR dataset: funnel log, fills, behavior ledger, findings (starts empty) |

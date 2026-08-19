@@ -5,3 +5,6 @@ __pycache__/
 .claude/scheduled_tasks.lock
 .gstack/
 .scratch/
+
+# ASD-STE100 reference: copyrighted by ASD, never commit it
+.claude/skills/ste100/reference/

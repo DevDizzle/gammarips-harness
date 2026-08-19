@@ -1,0 +1,131 @@
+================================================================================
+SHOW HN SUBMISSION - GammaRips harness
+Prepared 2026-08-08. Open in an editor and copy from here.
+================================================================================
+
+>>> READ BEFORE YOU PASTE <<<
+
+The README paywall is FIXED and merged (harness PR #2). The repo now leads with
+the free anonymous-tier one-liner and states plainly which four tools are paid.
+That blocker is cleared.
+
+Two reasons to still hold rather than fire today:
+
+  1. The 5 webapp PRs are not merged/deployed yet. Until #23 lands, every link
+     you post previews with NO IMAGE on HN, X, Slack and Discord. That is the
+     og:image fix. Deploy first.
+  2. Your own plan (DECIDED 08-06) times Show HN WITH the video. HN traffic is
+     a one-shot spike; you want the best converting page live when it hits.
+
+You get roughly one Show HN per project. Reposting burns goodwill. The cost of
+waiting a week is zero; the cost of firing early is the whole channel.
+
+Ideal: Tue-Thu, ~8-10am ET, on a day you can sit in the thread for 4+ hours.
+
+
+================================================================================
+TITLE  (recommended)
+================================================================================
+
+Show HN: Open-source harness for trading options with an AI agent over MCP
+
+--- alternates, if you prefer the angle over the artifact ---
+
+Show HN: Options-flow data for AI agents, with no pick endpoint on purpose
+
+Show HN: I gave my trading agent real options data instead of asking for picks
+
+
+================================================================================
+URL
+================================================================================
+
+https://github.com/DevDizzle/gammarips-harness
+
+(Submit the REPO, not gammarips.com. HN clicks GitHub. A repo is a thing you
+can clone; a marketing page is a thing you bounce off.)
+
+
+================================================================================
+TEXT
+================================================================================
+
+If the form accepts text alongside a URL, paste this there. If it does not,
+submit with the URL only and paste this as YOUR OWN FIRST COMMENT immediately
+after submitting. Either way it must be posted within a minute or two of the
+submission.
+
+--- copy from the next line ---
+
+Hi HN. I run an overnight scan of ~5,200 US tickers for unusual options
+activity, curate it hard down to a small pool, and expose the whole thing to AI
+agents over MCP. This repo is the open-source harness I run against it.
+
+The design decision I would most like to be argued with about: there is no pick
+endpoint, deliberately. The MCP exposes primitives (the curated pool,
+per-contract liquidity, realized excursion distributions for historical setups,
+a queryable outcome database, exit-rule simulation, methodology playbooks) and
+your agent reasons over them to its own contract. Two agents with different
+objectives and risk should reach different answers. I think a pick-returning
+endpoint is both a worse product and a liability, but I know that is an odd
+position for something in this category.
+
+What is free and what is not, plainly:
+
+Free, no signup, about ten seconds. Connect any MCP client to the anonymous
+tier and you get the pool preview, the daily report, regime context, the market
+calendar, and the methodology playbooks:
+
+    claude mcp add --transport http gammarips https://mcp.gammarips.com/mcp
+
+Paid ($39/mo) covers liquidity, enriched per-name detail, outcome history, and
+exit-rule simulation. The harness screen calls all four, so the daily loop will
+not run anonymously. The harness is free; the data is what costs money.
+
+The uncomfortable number, up front: the whole-pool composite under a fixed exit
+is negative. I publish that instead of hiding it. The pool is a candidate
+surface, not a set of winners, and whether anything works at all depends on how
+contracts are entered and exited. That is exactly why the harness pre-registers
+every pool name as a row before any outcome is known, and scores all of them
+after the close rather than only the ones it picked. Scoring just your own picks
+cannot tell you whether your screen works.
+
+Stack: Python on Cloud Run, BigQuery, Firestore, Polygon for options data. The
+MCP server is Streamable HTTP.
+
+I would genuinely rather be told where the methodology is wrong than be told it
+is neat. Everything is paper-traded and educational, and none of it is
+investment advice.
+
+--- copy to the line above ---
+
+
+================================================================================
+RULES THAT WILL GET YOU BANNED, SO DO NOT DO THEM
+================================================================================
+
+- Do NOT ask anyone to upvote. Not in Slack, not in a DM, not in a group chat.
+  HN detects voting rings and penalizes or bans for it. This is the single
+  fastest way to lose the account and the launch.
+- Do NOT repost if it sinks. If it gets no traction there is a moderator
+  "second chance" pool; you can email hn@ycombinator.com once, politely.
+- Do NOT argue defensively in the thread. The people picking holes in it are
+  doing you a favor and the audience is watching how you take it.
+- Do NOT let anything that reads as a returns promise into the thread. Your
+  compliance posture is an asset there. "The composite is negative and I publish
+  it" earns more credibility on HN than any performance number could.
+
+================================================================================
+WHILE THE THREAD IS LIVE
+================================================================================
+
+- Be there. The comments are the product. Answer technical questions fast, in
+  detail, in your own words.
+- Expect these three and have answers ready:
+    "How is this not just Unusual Whales with extra steps?"
+    "Why should I pay for data when the composite is negative?"
+    "What stops the agent from hallucinating a thesis over noisy data?"
+- Watch GA4 in real time. This is the first traffic event you will have had
+  with attribution actually working, assuming webapp PR #21 is deployed.
+
+================================================================================

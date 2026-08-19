@@ -50,13 +50,40 @@ signature shows up (an order idea minutes after a loss, hold-and-hope phrasing,
 sizing above your own written cap). The coach referees behavior against YOUR rules
 with receipts from `eval/behavior-ledger.jsonl`; it never says buy or sell.
 
+## Writing style — ASD-STE100 (Simplified Technical English)
+All prose in this repo obeys Simplified Technical English: chat replies, docs, PRDs, PR
+text, commit messages, and emails. The `ste100` skill holds the house rules and can build
+a local searchable copy of the official standard. Read it before you write a document.
+These core rules always apply:
+
+- Give the answer in the first sentence. Then give the detail.
+- Write short sentences: 20 words maximum in procedures, 25 in descriptions.
+- Use the active voice. Write instructions in the imperative.
+- Use only the simple tenses. Do not use the "-ing" form of verbs.
+- Write one instruction in each sentence. Keep one topic in each paragraph, with six
+  sentences maximum. Do not use a semicolon.
+- Use approved words: "do" not "perform", "make sure that" not "ensure/verify", "but" not
+  "however", "must" not "shall/should", "for example" not "e.g.".
+- Code, SQL, identifiers, and quoted output are verbatim. STE applies to prose only.
+  Trading domain terms are technical nouns: keep "delta", "theta", "spread", "open
+  interest", "time-stop". Spell each one out once, at first use.
+
+The goal is the reader's comprehension, not compliance with the standard. When the two
+conflict, choose clarity and say which rule you broke. A consult is read fast, in the
+morning, before the market moves — a sentence read twice is a sentence that costs money.
+
+**The standard itself is not in this repo, by design.** ASD-STE100 is copyrighted by ASD
+and may not be republished in whole or in part without their written authority. Run
+`python .claude/skills/ste100/build.py` to download your own free copy and extract the
+dictionary, the rules, and the word lists into a gitignored `reference/` directory.
+
 ## Layout
 | Path | What |
 |---|---|
 | `docs/` | doctrine, operations |
 | `wiki/` | llm-wiki knowledge layer (`findings/`, `literature/` + `_index/` registries) |
 | `eval/` | YOUR dataset: funnel-log, trades, behavior ledger, findings (see `eval/README.md`) |
-| `.claude/skills/` | procedures: trade, review, coach, wiki-distill |
+| `.claude/skills/` | procedures: trade, review, coach, wiki-distill, ste100 |
 | `.claude/agents/` | wiki-librarian (wiki health) |
 | `scripts/` | funnel_log, behavior_log (validators); edge, skill_eval (evidence); lint (wiki) |
 
