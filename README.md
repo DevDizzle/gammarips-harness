@@ -25,6 +25,10 @@ the daily report, regime context, the market calendar, and the methodology playb
 no signup. If the data is not interesting to you, you have spent ten seconds and you stop
 here.
 
+![A real recording: the one-line connect, then Claude Code reads the daily report and regime context from the free tier. No key, no account.](assets/demo.gif)
+
+The recording above is real output from the free tier on 2026-08-22. Nothing is staged. The run names no contract to buy, by design.
+
 ## Install as a Claude Code plugin (two commands)
 
 If you use Claude Code, install the harness as a plugin:
