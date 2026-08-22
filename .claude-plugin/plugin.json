@@ -1,0 +1,37 @@
+{
+  "name": "gammarips",
+  "version": "1.0.0",
+  "description": "Open-source agentic options-trading loop over the GammaRips MCP. Trade, review, coach skills. Data vendor, not advice.",
+  "author": {
+    "name": "GammaRips",
+    "url": "https://gammarips.com"
+  },
+  "homepage": "https://gammarips.com",
+  "repository": "https://github.com/DevDizzle/gammarips-harness",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "options",
+    "trading",
+    "agent",
+    "finance",
+    "gammarips"
+  ],
+  "skills": [
+    "./.claude/skills/trade",
+    "./.claude/skills/review",
+    "./.claude/skills/coach"
+  ],
+  "agents": [
+    "./.claude/agents/wiki-librarian.md"
+  ],
+  "mcpServers": {
+    "gammarips": {
+      "type": "http",
+      "url": "https://mcp.gammarips.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GAMMARIPS_MCP_KEY}"
+      }
+    }
+  }
+}
