@@ -57,9 +57,17 @@ submission.
 
 --- copy from the next line ---
 
-Hi HN. I run an overnight scan of ~5,200 US tickers for unusual options
-activity, curate it hard down to a small pool, and expose the whole thing to AI
-agents over MCP. This repo is the open-source harness I run against it.
+Hi HN. Every night I rank 3,532 optionable US names by liquidity, take the top
+100, keep the bullish ones, and pick one out-of-the-money call in each. That is
+a pool of roughly 40 to 50 contracts, and I expose the whole thing to AI agents
+over MCP. This repo is the open-source harness I run against it.
+
+I am not claiming those are the best contracts. I tested that and it failed:
+two pre-registered studies found the pool indistinguishable from matched random
+optionable contracts. What the liquidity rule measurably fixes is whether your
+agent can trade the thing at all. On a 60-day window the old unusual-activity
+funnel left 40.5% of picks with no fill at 10:00 ET. The liquid universe leaves
+6.1%. Those are study numbers on a window ending 2026-08-14, not a live result.
 
 The design decision I would most like to be argued with about: there is no pick
 endpoint, deliberately. The MCP exposes primitives (the curated pool,
