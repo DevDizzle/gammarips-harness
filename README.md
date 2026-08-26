@@ -2,9 +2,10 @@
 
 An open-source agentic trading harness for the **GammaRips** options-flow data layer. Clone
 it, point it at the GammaRips MCP, and run a disciplined daily loop: your agent reasons over
-the curated overnight unusual-options-activity pool to **one trade candidate per day (or
-none)**, screens tradeability before thesis, designs its own exit, pre-registers every
-decision as data, and scores the whole pool after the close. Paper-only by default.
+the overnight pool (liquidity-ranked, bullish only, one out-of-the-money call per name) to
+**one trade candidate per day (or none)**, screens tradeability before thesis, designs its
+own exit, pre-registers every decision as data, and scores the whole pool after the close.
+Paper-only by default.
 
 This is a **workflow, not a signal service.** GammaRips deliberately exposes no
 pick-returning endpoint, so there is nothing to copy. Two agents reasoning over the same
