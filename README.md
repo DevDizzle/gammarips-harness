@@ -26,6 +26,29 @@ the daily report, regime context, the market calendar, and the methodology playb
 no signup. If the data is not interesting to you, you have spent ten seconds and you stop
 here.
 
+![A real recording: the one-line connect, then Claude Code reads the daily report and regime context from the free tier. No key, no account.](assets/demo.gif)
+
+The recording above is real output from the free tier on 2026-08-22. Nothing is staged. The run names no contract to buy, by design.
+
+## Install as a Claude Code plugin (two commands)
+
+If you use Claude Code, install the harness as a plugin:
+
+```
+/plugin marketplace add DevDizzle/gammarips-harness
+/plugin install gammarips@gammarips
+```
+
+The plugin bundles the GammaRips MCP server, the three loop skills (`/gammarips:trade`,
+`/gammarips:review`, `/gammarips:coach`), and the `wiki-librarian` agent. The bundled
+server is the anonymous endpoint, so the five free tools answer immediately with no key
+and no account. For the paid tools, export your key as `GAMMARIPS_MCP_KEY` and start
+Claude Code again, because the plugin sends that variable as a bearer token.
+
+The skills write your dataset to `eval/` and call `scripts/`, so run them inside a clone
+of this repo. The plugin gives you the server and the skills. The clone gives you the
+data directory and the scripts.
+
 ## Running the harness (this part needs a key)
 
 Be clear about which side of the line the harness sits on. Its screen is built on the paid
@@ -75,6 +98,7 @@ and both are pro. The harness is free; the data is what costs money.
 | `docs/OPERATIONS.md` | MCP connection, timing, session procedure |
 | `.claude/skills/` | the procedures: trade, review, coach, wiki-distill, ste100 (writing style) |
 | `.claude/agents/` | wiki-librarian (wiki health) |
+| `.claude-plugin/` | plugin + marketplace manifests: install this repo as the `gammarips` Claude Code plugin |
 | `wiki/` | claim-tagged knowledge notes (`findings/`, `literature/`) + registries in `_index/` |
 | `eval/` | YOUR dataset: funnel log, fills, behavior ledger, findings (starts empty) |
 | `scripts/` | validators (funnel_log, behavior_log, lint) + evidence (edge, skill_eval) |
