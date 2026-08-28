@@ -69,8 +69,8 @@ tools, so the daily loop will not run on the anonymous tier:
 Tradeability grading and honest after-the-close scoring are the whole point of the loop,
 and both are pro. The harness is free; the data is what costs money.
 
-1. **Subscribe** at [gammarips.com/pricing](https://gammarips.com/pricing) ($39/mo, 7-day
-   free trial).
+1. **Subscribe** at [gammarips.com/pricing](https://gammarips.com/pricing) ($29/mo founding
+   price for the first 100, 30-day free trial).
 2. **Create your key** at [gammarips.com/account](https://gammarips.com/account). It is
    shown once, so copy it then.
 3. **Export it:**
