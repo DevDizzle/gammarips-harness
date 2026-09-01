@@ -5,20 +5,19 @@ Prepared 2026-08-08. Open in an editor and copy from here.
 
 >>> READ BEFORE YOU PASTE <<<
 
-The README paywall is FIXED and merged (harness PR #2). The repo now leads with
-the free anonymous-tier one-liner and states plainly which four tools are paid.
-That blocker is cleared.
+STATUS 2026-09-01: ALL BLOCKERS CLEARED. Nothing is waiting on anything.
 
-Two reasons to still hold rather than fire today:
+  - README paywall fixed and merged (harness PR #2).
+  - Plugin + free-tier GIF merged (PR #3, 08-28). Install path verified end
+    to end from a clean machine.
+  - Founding offer live (08-28): $29/mo first 100, 30-day trial, $299/yr.
+  - GA4 purchase attribution FIXED and verified in Realtime (08-31). The
+    property had never attested the User Data Collection Acknowledgement, so
+    it held no valid Measurement Protocol secret. It does now.
+  - og:image ships; links preview with an image.
 
-  1. The 5 webapp PRs are not merged/deployed yet. Until #23 lands, every link
-     you post previews with NO IMAGE on HN, X, Slack and Discord. That is the
-     og:image fix. Deploy first.
-  2. Your own plan (DECIDED 08-06) times Show HN WITH the video. HN traffic is
-     a one-shot spike; you want the best converting page live when it hits.
-
-You get roughly one Show HN per project. Reposting burns goodwill. The cost of
-waiting a week is zero; the cost of firing early is the whole channel.
+You get roughly one Show HN per project. Reposting burns goodwill. Fire it on a
+day you can actually sit in the thread, not on the first day you are free.
 
 Ideal: Tue-Thu, ~8-10am ET, on a day you can sit in the thread for 4+ hours.
 
@@ -57,10 +56,11 @@ submission.
 
 --- copy from the next line ---
 
-Hi HN. Every night I rank 3,532 optionable US names by liquidity, take the top
-100, keep the bullish ones, and pick one out-of-the-money call in each. That is
-a pool of roughly 40 to 50 contracts, and I expose the whole thing to AI agents
-over MCP. This repo is the open-source harness I run against it.
+Hi HN. Every night I start from about 3,500 optionable US names, keep the ones
+that traded 3M+ shares that session, rank those by liquidity and take the top
+100. Bullish only, one out-of-the-money call each, capped at 50. That is a pool
+of roughly 40 to 50 contracts, and I expose the whole thing to AI agents over
+MCP. This repo is the open-source harness I run against it.
 
 I am not claiming those are the best contracts. I tested that and it failed:
 two pre-registered studies found the pool indistinguishable from matched random
@@ -86,9 +86,10 @@ calendar, and the methodology playbooks:
 
     claude mcp add --transport http gammarips https://mcp.gammarips.com/mcp
 
-Paid ($39/mo) covers liquidity, enriched per-name detail, outcome history, and
-exit-rule simulation. The harness screen calls all four, so the daily loop will
-not run anonymously. The harness is free; the data is what costs money.
+Paid covers liquidity, enriched per-name detail, outcome history, and exit-rule
+simulation. It is $29/mo for the first 100 subscribers, with a 30-day free
+trial. The harness screen calls all four, so the daily loop will not run
+anonymously. The harness is free; the data is what costs money.
 
 The uncomfortable number, up front: the whole-pool composite under a fixed exit
 is negative. I publish that instead of hiding it. The pool is a candidate
@@ -134,6 +135,7 @@ WHILE THE THREAD IS LIVE
     "Why should I pay for data when the composite is negative?"
     "What stops the agent from hallucinating a thesis over noisy data?"
 - Watch GA4 in real time. This is the first traffic event you will have had
-  with attribution actually working, assuming webapp PR #21 is deployed.
+  with attribution actually working (verified 2026-08-31). Watch begin_checkout,
+  not purchase: at zero subscribers begin_checkout is the number that moves.
 
 ================================================================================
