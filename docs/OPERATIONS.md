@@ -5,7 +5,8 @@
   authoritative, always-current endpoint URL is published at
   `https://gammarips.com/mcp.json` — if a connection fails, copy the `url` from there.
 - Auth: bearer key in env `GAMMARIPS_MCP_KEY`. Subscribe at
-  `https://gammarips.com/pricing` ($39/mo, 7-day free trial), then create a key at
+  `https://gammarips.com/pricing` ($29/mo founding price for the first 100
+  subscribers, 30-day free trial), then create a key at
   `https://gammarips.com/account` and export it:
   ```bash
   export GAMMARIPS_MCP_KEY="<your key>"
