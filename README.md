@@ -115,6 +115,22 @@ and both are pro. The harness is free; the data is what costs money.
 - **The coach never advises.** `/coach` referees your behavior against your own written
   rules, with receipts from your own record. It never says buy or sell.
 
+## Traces
+
+`traces/` holds one file per trading day of the harness running unattended on a VM, with
+Claude Code as the agent: the preflight verdict, the entry reasoning quoted verbatim, the
+data pulls and gate scripts it called, the monitor verdicts, and the ledger's entry, exit
+reason and fill. They are receipts, not claims. There is no win rate and no return figure
+in them by design.
+
+Each file starts with two fixed lines: a notice that names what the file is (paper-traded
+research on a paper or shadow day, a live trading record on a live day, never investment
+advice), and the mode the day ran in (`paper`, `shadow` or `live`). The files are generated after the close by
+`scripts/export_trace.py` in the private operator repo, from the session transcripts and
+the trade ledger. Redaction is code, not a manual step: keys, tokens, account and order
+ids, balances, e-mail addresses, hosts and paths are stripped, a fixture test asserts none
+survive, and the export refuses to write a file in which any key prefix remains.
+
 ## Not investment advice
 
 GammaRips is a data vendor. Everything here is educational and on a paper-trading basis
