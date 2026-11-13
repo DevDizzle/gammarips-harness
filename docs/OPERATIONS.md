@@ -1,47 +1,32 @@
 # Operations
 
-## MCP connection
-- Endpoint: the GammaRips MCP over Streamable HTTP, configured in `.mcp.json`. The
-  authoritative, always-current endpoint URL is published at
-  `https://gammarips.com/mcp.json` — if a connection fails, copy the `url` from there.
-- Auth: bearer key in env `GAMMARIPS_MCP_KEY`. Subscribe at
-  `https://gammarips.com/pricing` ($29/mo founding price for the first 100
-  subscribers, 30-day free trial), then create a key at
-  `https://gammarips.com/account` and export it:
-  ```bash
-  export GAMMARIPS_MCP_KEY="<your key>"
+## MCP Connection
+- **Pro OAuth Endpoint:** `https://mcp.gammarips.com/pro`
+- **Bearer Key Endpoint:** `https://mcp.gammarips.com/mcp` (configured in `.mcp.json`) with header:
   ```
-  This harness always sends its key — dogfooding the keyed path is part of the point.
-  **Never hardcode the key anywhere in this repo.**
-- A free anonymous tier exists without a key (pool preview, daily reports, methodology
-  playbooks, regime/calendar) — but the daily loop needs the pro tools, so a key is
-  required for real use.
-- If the MCP is down or erroring: that's a no-trade day. Note the outage on the day's
-  funnel rows. Do not fall back to any other data source.
+  Authorization: Bearer gr_live_...
+  ```
+- **Environment Variable:** Create an API key at `https://gammarips.com/account` and export it:
+  ```bash
+  export GAMMARIPS_MCP_KEY="gr_live_..."
+  ```
+  **Never hardcode your API key in the repository.**
+- **Free Anonymous Tier:** Pointing an MCP client at `https://mcp.gammarips.com/mcp` without an `Authorization` header serves the cohort preview, daily report, regime context, market calendar, and methodology playbooks. Full cohort screening (`get_pool` enriched), tradeability (`get_liquidity`), and historical MFE/MAE excursion queries (`query_outcomes`, `replay_contract`) require Pro auth.
+- If the MCP is unreachable or returns stale scan data when the market is open, record a no-trade day and stop. Never substitute another options chain source for the curated cohort.
 
 ## Timing (all ET)
-- The engine scans overnight; the enriched pool for `scan_date = D` lands early morning
-  D+1. Regime + pool tools serve the latest closed scan.
-- Market open 09:30. The engine's own reference entry is 10:00. The harness session runs
-  best ~09:35–10:30: pool is final, regime known, and the decision still leads the day.
-- Date semantics: `scan_date` is the evening the flow was detected; entry day is the next
-  session. Always state both on every funnel row.
+- The GammaRips pipeline filters ~3,500 optionable US stocks overnight down to the surviving daily cohort (`Mid >= $1.00`, `OI >= 500`, `Delta 0.22–0.48`, `DTE 10–45`, `RV/IV >= 0.85`).
+- Market open is 09:30 ET; reference entry anchor is 10:00 ET. Run the morning workflow between 09:35 and 10:30 ET once early session prints have registered.
+- Date semantics: `scan_date` is the session the overnight cohort was generated from; `entry_day` is the next trading session. Record both on every funnel row.
 
-## Daily session procedure
-1. `/trade` — calendar, regime, pool, tradeability screen, ranked candidates (or
-   no-trade), exit design, funnel pre-registration. You decide and place any order.
-2. After the close: `/review` — score every pool name, backfill the 3-day window, run
-   `edge.py` + `skill_eval.py`.
-3. `/coach` on demand, or unprompted when an impulse signature appears.
-4. `python scripts/lint.py` after any wiki write; the funnel and behavior logs
-   self-validate on upsert.
-
-## When the MCP can't answer
-If a decision-relevant question has no MCP answer, note it on the funnel row, decide without
-it (or no-trade), and move on. Never improvise a data source. If you think it's a genuine
-product gap, that is useful feedback to the vendor (`https://gammarips.com`).
-
-## Outage / failure handling
-Classify before acting: MCP unreachable | tool error | stale data (calendar says open but
-pool is old) | auth failure. All four → record a no-trade day with the classification, stop.
-Never improvise a data source.
+## Daily Session Procedure
+1. **Morning (`/trade` — 3-Step Workflow):**
+   - **Step 1 — Pull the Daily Cohort (`get_pool`):** Check `get_market_calendar_status` and `get_regime_context`, then fetch today's surviving contracts and their volatility/liquidity metrics (`rv_iv_ratio`, `open_interest`, `mid_price`, `delta`, `dte`, opportunity surfaces, and `get_liquidity` early prints).
+   - **Step 2 — Layer Your Own Catalyst Search:** Optionally dispatch parallel subagents or live X/Twitter and web search (for example, Grok searching live `$TICKER` cashtag chatter, FDA/SEC filings, or unpriced catalysts) to debate and rank the surviving contracts.
+   - **Step 3 — Build the Trade Plan / Execute:** Size the position, design deterministic bracket exits (target, stop, mandatory time-stop) using historical MFE/MAE excursion distributions (`query_outcomes`), pre-register every cohort row via `python scripts/funnel_log.py upsert`, and optionally route execution to your broker MCP.
+2. **After the Close (`/review`):**
+   - Score every cohort contract (`query_outcomes`, `replay_contract`), backfill the 3-day window, and run `python scripts/edge.py` + `python scripts/skill_eval.py`.
+3. **Behavioral Referee (`/coach`):**
+   - Run on demand or when an impulse signature appears to audit actions against `docs/TRADING-DOCTRINE.md` and `eval/behavior-ledger.jsonl`.
+4. **Validation:**
+   - Run `python scripts/lint.py` after any `wiki/` update; `funnel_log.py` and `behavior_log.py` validate automatically on write.

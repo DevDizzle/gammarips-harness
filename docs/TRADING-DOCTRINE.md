@@ -9,9 +9,7 @@ Amend it deliberately — it defines the constraints the trade-critic enforces.
 that switch (see Real-money triggers).
 
 ## Instrument universe
-Single-leg long options drawn from the day's curated GammaRips pool (via the MCP). Nothing
-off-pool. Bullish bias — pragmatic, not dogmatic; the engine pool is currently BULLISH-only
-anyway.
+Single-leg long options drawn exclusively from the day's curated GammaRips MCP cohort (`get_pool`), where ~3,500 optionable US stocks are filtered down to liquid, tradable, high-edge contracts (`Mid >= $1.00`, `OI >= 500`, `Delta 0.22–0.48`, `DTE 10–45`, `RV/IV >= 0.85`). Nothing off-cohort. External web or X/Twitter subagents may be used in Step 2 of the workflow to research live catalysts (`$TICKER` cashtag chatter, FDA/SEC filings) and rank surviving cohort names, never to introduce off-cohort contracts.
 
 ## The daily decision
 One candidate per day **or none**. No-trade is a first-class, recorded outcome — the

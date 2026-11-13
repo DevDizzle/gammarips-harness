@@ -1,119 +1,53 @@
 ---
 name: trade
-description: The morning consult — pull the pool, screen everything for tradeability, and bring the operator a short ranked list (or a reasoned no-trade) with honest numbers. The operator decides; the agent never places or simulates an order on its own.
+description: Run the 3-step GammaRips morning workflow — (1) pull the curated daily cohort via get_pool, (2) layer live catalyst search via X/web subagents and screen tradeability, and (3) build a deterministic trade plan with MFE/MAE bracket exits (query_outcomes).
 ---
 
 # trade
 
-Bring the operator the best two or three things they could do today, with honest numbers,
-and say which one you'd take and why. **No-trade is a valid, successful output** — the
-doctrine's default answer is "no" — but it is a conclusion you reach from the data, never
-a default you fall back on. `docs/TRADING-DOCTRINE.md` binds.
+Run the 3-step morning workflow over the curated GammaRips MCP dataset and bring the operator the best two or three trade plans for the session (or a reasoned no-trade). **No-trade is a first-class output** (`docs/TRADING-DOCTRINE.md`).
 
-All decision-time data comes through the gammarips MCP (CLAUDE.md non-negotiable #1).
-Anything it can't answer: note the gap, decide without it or no-trade, move on.
+All option cohort and outcome data comes through the **GammaRips MCP** (`https://mcp.gammarips.com/pro` via OAuth or `https://mcp.gammarips.com/mcp` with `Authorization: Bearer gr_live_...`).
 
-## 1. Gather (one pass, in parallel where you can)
+## Step 1: Pull the Daily Cohort (`get_pool`)
 
-- `get_market_calendar_status` — keep the ET stamp; it travels with everything.
-- `get_regime_context` — `regime_rail_pass = false` (VIX > VIX3M, backwardation) is
-  doctrine hard exclusion #2: fail-closed, no new position today. Note it lags the live
-  pool by 1-2 sessions.
-- `get_pool` view="enriched" (primary) and view="raw" (context) for the latest scan_date.
-  A stale scan_date is an outage (see OPERATIONS), not a pool.
-- `get_daily_report` — editorial color, never signal.
+GammaRips filters ~3,500 optionable US stocks down to the daily cohort of liquid, tradable, high-edge contracts (`Mid >= $1.00`, `OI >= 500`, `Delta 0.22–0.48`, `DTE 10–45`, `RV/IV >= 0.85`).
 
-## 2. Screen for tradeability FIRST — this is the step that protects the money
+1. **Session & Regime Check:**
+   - Call `get_market_calendar_status` and record the ET timestamp.
+   - Call `get_regime_context`. If `regime_rail_pass = false` (VIX > VIX3M backwardation), hard exclusion #2 applies: fail-closed, no new long position today.
+2. **Fetch Surviving Contracts:**
+   - Call `get_pool(view="enriched")` for the latest `scan_date` to retrieve each surviving contract's point-in-time volatility and liquidity metrics (`rv_iv_ratio`, `open_interest`, `mid_price`, `delta`, `dte`, and opportunity surfaces).
+   - Call `get_daily_report` for overnight macro/session context.
+3. **Verify Morning Tradeability (`get_liquidity`):**
+   - After 09:52 ET (15-minute delayed feed), run one batched `get_liquidity` call across the cohort.
+   - Verify `day.last_updated` matches today's session date.
+   - Grade early session prints ([[contract-tradeability-early-prints]]):
+     - `>= 5` prints by 09:52 ET: liquidity-confirmed (96.3% finish `>= 50` contracts).
+     - `1–4` prints: re-check at 09:55–10:00 ET before committing.
+     - `0` prints: veto-grade caution (68.1% finish under 50 contracts).
+   - If connected to a live broker quote source, require bid/ask spread `<= 10%` of mark and inspect dollar bid depth (`bid_size * price * 100`).
 
-**Timing floor: never read liquidity before 09:52 ET.** The feed is 15-minute delayed;
-the first usable snapshot is ~09:52 (prints through ~09:37). An earlier read served as
-decision-time state is a self-inflicted outage.
+## Step 2: Layer Your Own Catalyst Search (Bring Your Own X / Web Agent)
 
-One batched `get_liquidity` over the whole pool (omit the singular `contract` arg).
-Then, per contract:
+With the surviving liquid contracts in hand, layer your own catalyst and narrative research to rank the shortlist:
 
-- **Check `day.last_updated` on every row.** A bar whose date is not today is the prior
-  session's bar — its `day_volume` is YESTERDAY's total masquerading as this morning's
-  prints. A stale bar is a zero-print row in disguise; open interest proves nothing.
-- **Grade on early prints** ([[contract-tradeability-early-prints]], proven-on-cohort,
-  N=750 / 15 entry days):
+1. **Check Earnings Hard Exclusion (`get_signal`):**
+   - Call `get_signal(view="earnings")` per survivor and verify the print date against your **intended hold window** ([[earnings-iv-crush]]). Any earnings event inside the hold window — or an unverified date — drops the candidate (`exclusion_reason: "earnings"`).
+2. **Dispatch Catalyst Subagents / X & Web Search (Optional):**
+   - Spin up parallel subagents or live search tools (for example, Grok searching live `$TICKER` cashtag chatter on X/Twitter, SEC 8-K / Form 4 filings, FDA PDUFA calendars, or sector news) to surface unpriced catalysts and debate bull vs. bear cases on the surviving cohort tickers.
+   - Keep quantitative discipline intact: do not filter or rank on falsified single-factor rules like raw OI level ([[oi-not-quality-signal]]) or volume/OI ratio ([[voi-ratio-anti-edge]]). Use `rv_iv_ratio`, live delta ([[delta-band-0-20-0-46]]), and verified catalysts to separate the top 2–3 candidates.
 
-  | Prints by 09:52 | Finished the day ≥50 contracts | Disposition |
-  |---|---|---|
-  | ≥ 20 | 100% (N=133) | liquidity-confirmed |
-  | ≥ 5 | 96.3% (N=218) | liquidity-confirmed |
-  | 1-4 | — | re-read at 09:55-10:00 before committing |
-  | 0 | 68.1% finished under 50; 40.6% ghost | **veto-grade caution** |
+## Step 3: Build the Trade Plan / Execute
 
-- **Precedence: prints > THIN flag > OI level.** OI is a tiebreak, never a gate — OI
-  ≥1,000 still leaves 23.9% of contracts under 50 on entry day
-  ([[oi-not-quality-signal]]).
-- **The book is invisible on this data plan.** The MCP serves no bid/ask/spread. If you
-  have your own quote source (a broker screen counts), gate on **spread ≤ ~10% of mark**
-  and read **dollar depth on the bid** (`bid_size × price × 100` — what you can get OUT
-  of) before calling a name takeable at size. Without one, an unverifiable book is
-  doctrine hard exclusion #3: accept and document the risk explicitly, or pass. Never
-  silently assume.
+Every candidate requires a deterministic exit plan before entry ([[fixed-exit-composites-negative]]):
 
-Say how many names each check dropped and why — the counts are themselves the finding,
-and they belong in the funnel rows.
-
-## 3. Shortlist and rank — what the evidence actually supports
-
-- **Falsified on cohort — never filter or rank on these:** moneyness
-  ([[moneyness-10-15-otm]]), V/OI ([[voi-ratio-anti-edge]]), OI level
-  ([[oi-not-quality-signal]]), recent option winners ([[ride-winners-mean-reverts]]).
-  Report them as descriptive context only.
-- **Live delta, not scan delta** — refresh via the liquidity read; 0.20-0.46 is a sanity
-  check, not a gate ([[delta-band-0-20-0-46]], non-binding under the current pool).
-- **Tilts, cited with their tags, never gates:** [[catalyst-mid-band]]
-  (fragile-conditional); [[mom-60-conditional-lever]] ONLY when a multi-day hold is on
-  the table (exit-context discipline).
-- **Contract price drift:** if the contract has already re-priced far above its
-  scan/overnight reference, the entry the setup was scanned at no longer exists — worse
-  entry, worse RR. Note it; judgment decides.
-- **Earnings — hard exclusion #1, fail-closed:** `get_signal(view="earnings")` per
-  candidate; test the print date against your **intended hold window**, not the expiry
-  (the flag is expiry-anchored and over-excludes short holds). `not_covered_by_plan` or
-  an ambiguous date = treat as in-window and drop, flagged `earnings: unverified`.
-- **Per-ticker history** where survivors are close: `query_outcomes` labels/surface for
-  the name — and **filter rows carrying `illiquid_exit=true`** before concluding
-  anything; sim PnL on ghost rows was never realizable.
-- **Never gate on contract cost.** Cost is reported against the operator's stated paper
-  book; it is not a rank input. The operator sizes.
-
-## 4. Design the exit before entry
-
-The exit is where the PnL lives ([[fixed-exit-composites-negative]]): the pool's
-opportunity is real, and every uniform fixed exit tested is negative pool-wide.
-
-1. Choose the intended hold first (same-day vs multi-day) — it decides admissible levers
-   and the time-stop.
-2. Evidence: `query_outcomes(view="surface")` for comparable contracts;
-   `view="exit_rule"` for 2-3 candidate brackets; `view="harvest"` for touch
-   probabilities. Report the honest base rates (stops touch more often than targets
-   pool-wide).
-3. Design target, stop, and a **mandatory time-stop** for THIS contract, and say why
-   these levels. Where the evidence can't discriminate, say so and decide on judgment —
-   the tools surface evidence; they never gate, and lack of exit-validation data is
-   never a reason to no-trade.
-
-## 5. Bring it to the operator
-
-Two or three candidates maximum, each with: contract, live mark, prints grade, OI build,
-live delta, cost, and the exit design. Say which one you'd take, why, and the single
-thing most likely to make you wrong. Then stop — the operator decides, places (paper or
-otherwise) their own order, and reports the real fill.
-
-## 6. Record — this is the entire write-up
-
-- `python scripts/funnel_log.py upsert` — **one row per pool name**, stage and reason,
-  including everything the tradeability screen dropped (schema in `eval/README.md`).
-  Stamp `skill_version` and `regime` on every row; without the version stamp, rows from
-  before and after a skill change are not comparable and `scripts/skill_eval.py` cannot
-  tell whether a change helped or the tape got easier. This pre-registration — written
-  before any outcome is known — is what makes the dataset honest.
-- `eval/trades.jsonl` — one line, only on a real fill, recording the actual fill (from
-  the broker record where one exists), never the plan.
-- Gaps the MCP couldn't answer go in your gap notes and to the vendor — never work
-  around one silently.
+1. **Calibrate Bracket Exits with Historical MFE/MAE (`query_outcomes`):**
+   - Select the intended hold horizon (same-day session vs. multi-day 3-session window, [[three-day-harvest-curve]]).
+   - Query historical excursion data via `query_outcomes(view="surface")`, `query_outcomes(view="exit_rule")`, and `query_outcomes(view="harvest")` (filtering out `illiquid_exit=true` ghost rows).
+   - Set a deterministic **profit target**, **stop loss**, and **mandatory time-stop** for each candidate contract.
+2. **Size the Position:**
+   - Size against the operator's risk budget and planned stop loss (`docs/TRADING-DOCTRINE.md`), stating the contract cost and maximum dollar risk explicitly.
+3. **Pre-Register & Present (or Route to Broker MCP):**
+   - Pre-register **one row per cohort contract** (including all excluded rows and their `exclusion_reason`) via `python scripts/funnel_log.py upsert` before outcomes are known.
+   - Present the top 2–3 ranked trade plans (contract, `rv_iv_ratio`, live mark, early prints grade, delta, DTE, catalyst summary, and deterministic target/stop/time-stop bracket) to the operator — or, when configured by the operator, route the approved bracket order to the operator's broker MCP and log real fills in `eval/trades.jsonl`.
