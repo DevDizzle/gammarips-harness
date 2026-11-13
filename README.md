@@ -1,139 +1,84 @@
 # gammarips-harness
 
-An open-source agentic trading harness for the **GammaRips** options-flow data layer. Clone
-it, point it at the GammaRips MCP, and run a disciplined daily loop: your agent reasons over
-the overnight pool (liquidity-ranked, bullish only, one out-of-the-money call per name) to
-**one trade candidate per day (or none)**, screens tradeability before thesis, designs its
-own exit, pre-registers every decision as data, and scores the whole pool after the close.
-Paper-only by default.
+An open-source agent workflow harness for the **GammaRips MCP** curated options dataset.
 
-This is a **workflow, not a signal service.** GammaRips deliberately exposes no
-pick-returning endpoint, so there is nothing to copy. Two agents reasoning over the same
-pool, with different objectives and risk, should reach different contracts. The value is
-your analysis over shared data.
+GammaRips is a data layer, not a signal service. Every trading day, the engine filters ~3,500 optionable US stocks down to a curated cohort of liquid, tradable, high-edge option contracts and serves that dataset over MCP. Your agent pulls the surviving cohort, layers its own live catalyst research (X/Twitter cashtags, filings, web search, parallel subagents), and builds a deterministic trade plan with historical MFE/MAE excursion data.
 
-## Try the data first (no key, no card, about ten seconds)
+## The Product: Curated Options Dataset via MCP
 
-You do not need an account to see what this is built on. Point any MCP client at the
-anonymous tier:
+Instead of dumping noisy raw chains into an LLM context window, GammaRips filters the US options universe down to the daily cohort of surviving contracts that pass strict quantitative and liquidity gates:
+
+- **Mid Price:** `Mid >= $1.00`
+- **Open Interest:** `OI >= 500`
+- **Delta Band:** `Delta 0.22–0.48`
+- **Days to Expiration:** `DTE 10–45`
+- **Volatility Edge:** `RV/IV >= 0.85` (realized volatility vs. implied volatility)
+
+### MCP Endpoints
+
+Connect any MCP-compatible agent (Claude Code, Grok, Codex, Cursor, or custom runners):
+
+- **Pro (OAuth):** `https://mcp.gammarips.com/pro`
+- **API Key (Bearer):** `https://mcp.gammarips.com/mcp` with header `Authorization: Bearer gr_live_...`
+- **Free Preview (No Key):** `https://mcp.gammarips.com/mcp` (serves the daily report, regime context, market calendar, playbooks, and cohort preview)
+
+## 3-Step Agent Workflow
+
+### 1. Pull the Daily Cohort (`get_pool`)
+Fetch today's surviving tradable option contracts and their point-in-time volatility and liquidity metrics (`rv_iv_ratio`, `open_interest`, `mid_price`, `delta`, `dte`, and opportunity surfaces), alongside market calendar status (`get_market_calendar_status`) and VIX term-structure regime (`get_regime_context`).
+
+### 2. Layer Your Own Catalyst Search (Bring Your Own X / Web Agent)
+GammaRips handles the quantitative options filtering; you bring the catalyst layer. Have your agent (Claude Code, Grok, Codex, Cursor) spin up parallel subagents or live X/Twitter and web search — for example, Grok searching live `$TICKER` cashtag chatter, SEC/FDA regulatory filings, or unpriced catalysts — to debate and rank the surviving contracts.
+
+### 3. Build the Trade Plan / Execute
+Size the position against your risk budget, set deterministic bracket exits (profit target, stop loss, and mandatory time-stop) using historical MFE/MAE excursion distributions (`query_outcomes` and `replay_contract`), pre-register the decision in `eval/funnel-log.jsonl`, and optionally route the order to your own broker MCP.
+
+---
+
+## Quick Start
+
+### Try the free preview (no key, 10 seconds)
 
 ```bash
 claude mcp add --transport http gammarips https://mcp.gammarips.com/mcp
 ```
 
-Then ask your agent for this morning's brief. The anonymous tier serves the pool preview,
-the daily report, regime context, the market calendar, and the methodology playbooks, with
-no signup. If the data is not interesting to you, you have spent ten seconds and you stop
-here.
+Ask your agent for today's brief to inspect the market calendar, VIX regime context, daily report, and cohort preview.
 
-![A real recording: the one-line connect, then Claude Code reads the daily report and regime context from the free tier. No key, no account.](assets/demo.gif)
+![Real recording: connecting to the GammaRips MCP and reading the daily report and regime context.](assets/demo.gif)
 
-The recording above is real output from the free tier on 2026-08-22. Nothing is staged. The run names no contract to buy, by design.
+### Connect with Pro (OAuth or API Key)
 
-## Install as a Claude Code plugin (two commands)
-
-If you use Claude Code, install the harness as a plugin:
-
-```
-/plugin marketplace add DevDizzle/gammarips-harness
-/plugin install gammarips@gammarips
-```
-
-The plugin bundles the GammaRips MCP server, the three loop skills (`/gammarips:trade`,
-`/gammarips:review`, `/gammarips:coach`), and the `wiki-librarian` agent. The bundled
-server is the anonymous endpoint, so the five free tools answer immediately with no key
-and no account. For the paid tools, export your key as `GAMMARIPS_MCP_KEY` and start
-Claude Code again, because the plugin sends that variable as a bearer token.
-
-The skills write your dataset to `eval/` and call `scripts/`, so run them inside a clone
-of this repo. The plugin gives you the server and the skills. The clone gives you the
-data directory and the scripts.
-
-## Running the harness (this part needs a key)
-
-Be clear about which side of the line the harness sits on. Its screen is built on the paid
-tools, so the daily loop will not run on the anonymous tier:
-
-| Tool | Tier | What the loop uses it for |
-|---|---|---|
-| `get_pool` | free preview, pro full | the candidate pool; the screen needs the enriched view |
-| `get_daily_report` | free | overnight market context |
-| `get_regime_context` | free | the VIX term-structure rail |
-| `get_market_calendar_status` | free | session timing |
-| `get_playbook` | free | the methodology the agent reasons with |
-| `get_liquidity` | **pro** | tradeability grading, which runs before any thesis |
-| `get_signal` | **pro** | enriched per-name detail |
-| `query_outcomes` | **pro** | scoring every pool name after the close |
-| `replay_contract` | **pro** | exit-rule simulation |
-
-Tradeability grading and honest after-the-close scoring are the whole point of the loop,
-and both are pro. The harness is free; the data is what costs money.
-
-1. **Subscribe** at [gammarips.com/pricing](https://gammarips.com/pricing) ($29/mo founding
-   price for the first 100, 30-day free trial).
-2. **Create your key** at [gammarips.com/account](https://gammarips.com/account). It is
-   shown once, so copy it then.
-3. **Export it:**
+1. **Subscribe** at [gammarips.com/pricing](https://gammarips.com/pricing) and create an API key at [gammarips.com/account](https://gammarips.com/account) (or authenticate directly via OAuth at `https://mcp.gammarips.com/pro`).
+2. **Export your key** for `.mcp.json`:
    ```bash
-   export GAMMARIPS_MCP_KEY="<your key>"
+   export GAMMARIPS_MCP_KEY="gr_live_..."
    ```
-   `.mcp.json` reads this from the environment. Never hardcode the key.
-4. **Open the repo in Claude Code** (or any MCP client that reads `.mcp.json`). The
-   `gammarips` server connects over Streamable HTTP.
-5. **Run the loop:**
+3. **Or install as a Claude Code plugin:**
    ```
-   /trade    morning consult: screen the pool, rank 2-3 candidates or no-trade; you decide
-   /review   after the close: score EVERY pool name, backfill the 3-day window
-   /coach    on demand: behavioral feedback with receipts from your own record
+   /plugin marketplace add DevDizzle/gammarips-harness
+   /plugin install gammarips@gammarips
    ```
-   `scripts/edge.py` and `scripts/skill_eval.py` accumulate the evidence across days and
-   say, with their own sample-size warnings, whether the screen is earning its keep.
+4. **Run the daily skills:**
+   ```
+   /trade    Step 1–3 morning workflow: pull cohort, layer catalysts, build exit plan
+   /review   After the close: score every cohort contract with MFE/MAE outcomes
+   /coach    On demand: referee trading behavior against your written rules
+   ```
 
-## What's in here
+## Repository Layout
 
-| Path | What |
+| Path | Description |
 |---|---|
-| `CLAUDE.md` | agent entry point: mission, non-negotiables, the loop |
-| `docs/TRADING-DOCTRINE.md` | the rules: hard exclusions, tradeability, sizing (set your own), exit discipline |
-| `docs/OPERATIONS.md` | MCP connection, timing, session procedure |
-| `.claude/skills/` | the procedures: trade, review, coach, wiki-distill, ste100 (writing style) |
-| `.claude/agents/` | wiki-librarian (wiki health) |
-| `.claude-plugin/` | plugin + marketplace manifests: install this repo as the `gammarips` Claude Code plugin |
-| `wiki/` | claim-tagged knowledge notes (`findings/`, `literature/`) + registries in `_index/` |
-| `eval/` | YOUR dataset: funnel log, fills, behavior ledger, findings (starts empty) |
-| `scripts/` | validators (funnel_log, behavior_log, lint) + evidence (edge, skill_eval) |
+| `CLAUDE.md` | Agent instructions: dataset specification, 3-step workflow, and core rules |
+| `.mcp.json` | Streamable HTTP MCP config (`https://mcp.gammarips.com/mcp` with `Bearer ${GAMMARIPS_MCP_KEY}`) |
+| `docs/TRADING-DOCTRINE.md` | Risk rules, hard exclusions, sizing framework, and deterministic exit discipline |
+| `docs/OPERATIONS.md` | MCP endpoints (`/pro` OAuth and `/mcp` Bearer key), session timing, and failure handling |
+| `.claude/skills/` | Agent procedures: `trade`, `review`, `coach`, `wiki-distill`, `ste100` |
+| `wiki/` | Claim-tagged research notes (`findings/`, `literature/`) and index registries |
+| `eval/` | Your local dataset: `funnel-log.jsonl`, `trades.jsonl`, `behavior-ledger.jsonl` |
+| `scripts/` | Validators (`funnel_log.py`, `behavior_log.py`, `lint.py`) and evaluators (`edge.py`, `skill_eval.py`) |
 
-## Discipline
+## Not Investment Advice
 
-- **Tradeability before thesis.** The screen grades every name on early prints and book
-  honesty before any story is considered. An untradeable winner is not a missed trade.
-- **Pre-register before outcome.** One funnel row per pool name, written before any
-  outcome is known; `/review` scores all of them, including everything the screen
-  dropped. Scoring only your own picks cannot tell you whether the screen works.
-- **Cite claims with their maturity tag and exit-context.** An edge is exit-conditional;
-  a finding without its N is not admissible.
-- **The coach never advises.** `/coach` referees your behavior against your own written
-  rules, with receipts from your own record. It never says buy or sell.
-
-## Traces
-
-`traces/` holds one file per trading day of the harness running unattended on a VM, with
-Claude Code as the agent: the preflight verdict, the entry reasoning quoted verbatim, the
-data pulls and gate scripts it called, the monitor verdicts, and the ledger's entry, exit
-reason and fill. They are receipts, not claims. There is no win rate and no return figure
-in them by design.
-
-Each file starts with two fixed lines: a notice that names what the file is (paper-traded
-research on a paper or shadow day, a live trading record on a live day, never investment
-advice), and the mode the day ran in (`paper`, `shadow` or `live`). The files are generated after the close by
-`scripts/export_trace.py` in the private operator repo, from the session transcripts and
-the trade ledger. Redaction is code, not a manual step: keys, tokens, account and order
-ids, balances, e-mail addresses, hosts and paths are stripped, a fixture test asserts none
-survive, and the export refuses to write a file in which any key prefix remains.
-
-## Not investment advice
-
-GammaRips is a data vendor. Everything here is educational and on a paper-trading basis
-by default. Nothing in this repo is investment advice. Trade your own capital at your own
-risk, and get qualified securities and tax counsel before trading real money, especially
-if you publish signals you also trade.
+GammaRips is a financial data vendor. Everything in this repository is for educational and research purposes, configured for paper trading by default. Nothing here constitutes investment advice. Trade your own capital at your own risk.
