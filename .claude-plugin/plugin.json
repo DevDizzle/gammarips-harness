@@ -1,7 +1,7 @@
 {
   "name": "gammarips",
-  "version": "1.0.0",
-  "description": "Open-source agentic options-trading loop over the GammaRips MCP. Trade, review, coach skills. Data vendor, not advice.",
+  "version": "2.0.0",
+  "description": "Open-source agentic options workflow over the GammaRips Combo A MCP dataset (`Mid >= $1.00`, `OI >= 500`, `Delta 0.22–0.48`, `DTE 10–45`, `rv_iv_ratio`). Educational only, not investment advice.",
   "author": {
     "name": "GammaRips",
     "url": "https://gammarips.com"
@@ -15,7 +15,8 @@
     "trading",
     "agent",
     "finance",
-    "gammarips"
+    "gammarips",
+    "combo-a"
   ],
   "skills": [
     "./.claude/skills/trade",
